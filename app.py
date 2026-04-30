@@ -5,7 +5,6 @@ from datetime import datetime
 st.set_page_config(page_title="СетьБезОбид", page_icon="🛡️", layout="centered")
 
 # ========== СПИСОК РАБОЧИХ КАРТИНОК ==========
-# (только проверенные, стабильные ссылки)
 safe_icons = [
     "https://cdn-icons-png.flaticon.com/512/754/754179.png",   # щит
     "https://cdn-icons-png.flaticon.com/512/420/420425.png",   # замок
@@ -16,15 +15,15 @@ safe_icons = [
     "https://cdn-icons-png.flaticon.com/512/2826/2826774.png"  # закон
 ]
 
-# Генерируем хаотичные картинки на фоне
+# ========== ХАОТИЧНЫЙ ФОН С КАРТИНКАМИ ==========
 bg_css = ""
-for _ in range(20):  # 20 случайных иконок
+for _ in range(18):
     img = random.choice(safe_icons)
     x = random.randint(0, 90)
     y = random.randint(0, 90)
-    size = random.randint(35, 85)
+    size = random.randint(35, 80)
     rot = random.randint(-25, 25)
-    op = random.uniform(0.08, 0.25)
+    op = random.uniform(0.08, 0.2)
     bg_css += f"""
     .stApp::before {{
         content: "";
@@ -114,15 +113,6 @@ st.markdown(f"""
         padding: 8px;
     }}
     
-    /* Инфо-блоки */
-    .info-box {{
-        background: rgba(0, 204, 255, 0.1);
-        border-left: 4px solid #00ccff;
-        border-radius: 10px;
-        padding: 12px;
-        margin: 10px 0;
-    }}
-    
     /* Стикеры */
     .sticker-grid {{
         display: flex;
@@ -157,44 +147,40 @@ st.markdown(f"""
         font-weight: bold;
         font-size: 11px;
     }}
+    
+    .info-box {{
+        background: rgba(0, 204, 255, 0.1);
+        border-left: 4px solid #00ccff;
+        border-radius: 10px;
+        padding: 12px;
+        margin: 10px 0;
+    }}
 </style>
 """, unsafe_allow_html=True)
 
-# ========== ХЭЛПЕР ДЛЯ КАРТИНОК ==========
-def icon_html(url, size=24):
-    return f'<img src="{url}" style="width: {size}px; margin-right: 8px; vertical-align: middle;">'
-
-# ========== ЗАГОЛОВОК ==========
-st.markdown(f'<h1>{icon_html(safe_icons[0], 45)} СетьБезОбид</h1>', unsafe_allow_html=True)
+# ========== ЗАГОЛОВОК С КАРТИНКОЙ ==========
+st.markdown(f"""
+<h1>
+    <img src="{safe_icons[0]}" style="width: 45px; margin-right: 10px; vertical-align: middle;">
+    СетьБезОбид
+</h1>
+""", unsafe_allow_html=True)
 st.markdown("*Твоя безопасная сеть без мошенников*")
 st.markdown("---")
 
-# ========== МЕНЮ С ИКОНКАМИ ==========
-menu_items = {
-    "Проверь ссылку": safe_icons[3],
-    "Челлендж дня": safe_icons[2],
-    "Распознай дипфейк": safe_icons[6],
-    "Твои права в сети": safe_icons[1],
-    "Стикер-пак": safe_icons[4]
-}
-
-menu_display = [f'{icon_html(menu_items[k])}{k}' for k in menu_items.keys()]
-selected_raw = st.sidebar.radio("МЕНЮ", menu_display, format_func=lambda x: x)
-
-# Определяем выбранный пункт
-selected = ""
-for k in menu_items.keys():
-    if k in selected_raw:
-        selected = k
-        break
+# ========== МЕНЮ (только текст с эмодзи — стабильно) ==========
+menu = st.sidebar.radio(
+    "📱 **МЕНЮ**",
+    ["🔍 Проверь ссылку", "⚡ Челлендж дня", "🎭 Распознай дипфейк", "📜 Твои права в сети", "😎 Стикер-пак"]
+)
 
 # ========== 1. ПРОВЕРКА ССЫЛКИ ==========
-if selected == "Проверь ссылку":
-    st.markdown(f'{icon_html(menu_items["Проверь ссылку"], 30)} **Проверь ссылку**', unsafe_allow_html=True)
+if menu == "🔍 Проверь ссылку":
+    st.markdown(f'<h2><img src="{safe_icons[3]}" style="width: 30px; margin-right: 10px;"> Проверь ссылку</h2>', unsafe_allow_html=True)
     st.markdown('<div class="info-box">Вставь ссылку — проверим на фишинг</div>', unsafe_allow_html=True)
     
     suspicious = ["login", "verify", "secure", "update", "confirm", "bank", "paypal", "password"]
-    link = st.text_input("Вставь ссылку:")
+    link = st.text_input("🌐 Вставь ссылку:")
     
     if link:
         if any(w in link.lower() for w in suspicious):
@@ -203,34 +189,41 @@ if selected == "Проверь ссылку":
             st.success("✅ Ссылка выглядит безопасно. Но всегда будь внимателен!")
 
 # ========== 2. ЧЕЛЛЕНДЖ ==========
-elif selected == "Челлендж дня":
-    st.markdown(f'{icon_html(menu_items["Челлендж дня"], 30)} **Челлендж дня**', unsafe_allow_html=True)
+elif menu == "⚡ Челлендж дня":
+    st.markdown(f'<h2><img src="{safe_icons[2]}" style="width: 30px; margin-right: 10px;"> Челлендж дня</h2>', unsafe_allow_html=True)
+    
+    if "q_idx" not in st.session_state:
+        st.session_state.q_idx = random.randint(0, 2)
     
     questions = [
-        ("Тебе звонят из «банка» и просят код из SMS", "Положу трубку и сам позвоню в банк"),
-        ("Друг в Telegram просит код подтверждения", "Позвоню другу и спрошу"),
-        ("Пришло письмо: «Твой аккаунт взломали, перейди по ссылке»", "Не переходить, проверить отправителя")
+        ("📞 Тебе звонят из «банка» и просят код из SMS. Твои действия?", "Положу трубку и сам позвоню в банк"),
+        ("💬 Друг в Telegram просит код подтверждения. Что делать?", "Позвоню другу и спрошу, он ли это"),
+        ("📧 Пришло письмо: «Твой аккаунт взломали, перейди по ссылке». Что делать?", "Не переходить, проверить отправителя")
     ]
     
-    idx = random.randint(0, 2)
-    q_text, correct = questions[idx]
-    
+    q_text, correct = questions[st.session_state.q_idx]
     st.markdown(f"**{q_text}**")
-    ans = st.radio("Твой выбор:", ["Назову код/перейду", correct])
+    ans = st.radio("Твой выбор:", ["📝 " + correct, "❌ Неправильный вариант"], index=None)
     
-    if st.button("Проверить"):
-        if ans == correct:
+    if st.button("🛡️ Проверить ответ"):
+        if ans and "❌" not in ans:
             st.balloons()
-            st.success("✅ Молодец! Это правильный ответ.")
+            st.success(f"✅ Молодец! {correct}")
+        elif ans:
+            st.error(f"❌ Неправильно! Правильный ответ: {correct}")
         else:
-            st.error("❌ Ошибка! " + correct)
+            st.warning("Выбери вариант ответа")
+    
+    if st.button("🔄 Следующий вопрос"):
+        st.session_state.q_idx = random.randint(0, 2)
+        st.rerun()
 
 # ========== 3. ДИПФЕЙК ==========
-elif selected == "Распознай дипфейк":
-    st.markdown(f'{icon_html(menu_items["Распознай дипфейк"], 30)} **Распознай дипфейк**', unsafe_allow_html=True)
+elif menu == "🎭 Распознай дипфейк":
+    st.markdown(f'<h2><img src="{safe_icons[6]}" style="width: 30px; margin-right: 10px;"> Распознай дипфейк</h2>', unsafe_allow_html=True)
     st.markdown("""
     <div class="info-box">
-    <b>5 признаков дипфейка:</b><br>
+    <b>5 признаков дипфейка:</b><br><br>
     1. 👁️ Странное моргание (слишком редкое или частое)<br>
     2. 👄 Губы не совпадают со звуком<br>
     3. 🌑 Неправильные тени на лице<br>
@@ -240,34 +233,35 @@ elif selected == "Распознай дипфейк":
     """, unsafe_allow_html=True)
 
 # ========== 4. ПРАВА ==========
-elif selected == "Твои права в сети":
-    st.markdown(f'{icon_html(menu_items["Твои права в сети"], 30)} **Твои права в сети**', unsafe_allow_html=True)
+elif menu == "📜 Твои права в сети":
+    st.markdown(f'<h2><img src="{safe_icons[1]}" style="width: 30px; margin-right: 10px;"> Твои права в сети</h2>', unsafe_allow_html=True)
     st.markdown("""
     <div class="info-box">
     <b>По законодательству Республики Беларусь:</b><br><br>
     ✅ Право не давать свои данные незнакомцам<br>
     ✅ Право удалить свои данные с сайта<br>
     ✅ Право сообщить в милицию (102)<br>
-    ⚠️ Обязанность не заниматься кибербуллингом
+    ⚠️ Обязанность не заниматься кибербуллингом<br>
+    ⚠️ Обязанность не переходить по подозрительным ссылкам
     </div>
     """, unsafe_allow_html=True)
 
 # ========== 5. СТИКЕРЫ ==========
-elif selected == "Стикер-пак":
-    st.markdown(f'{icon_html(menu_items["Стикер-пак"], 30)} **Стикер-пак #КиберПраво**', unsafe_allow_html=True)
+elif menu == "😎 Стикер-пак":
+    st.markdown(f'<h2><img src="{safe_icons[4]}" style="width: 30px; margin-right: 10px;"> Стикер-пак #КиберПраво</h2>', unsafe_allow_html=True)
     
-    sticker_list = [
-        (safe_icons[0], "Щит", "Защита активирована"),
-        (safe_icons[5], "Фишинг", "Не клюй!"),
-        (safe_icons[2], "Хакер", "Не вышло!"),
-        (safe_icons[1], "Пароль", "Твоя тайна"),
-        (safe_icons[3], "Ссылка", "Проверь перед переходом"),
-        (safe_icons[4], "Звонок", "Из банка? Клади трубку"),
-        (safe_icons[6], "Права", "Знай свои права")
+    stickers = [
+        (safe_icons[0], "🛡️ Щит", "Я в безопасности"),
+        (safe_icons[5], "🎣 Фишинг", "Не клюй!"),
+        (safe_icons[2], "😭 Хакер", "Не вышло!"),
+        (safe_icons[1], "🔒 Пароль", "Твоя тайна"),
+        (safe_icons[3], "🔍 Ссылка", "Проверь перед переходом"),
+        (safe_icons[4], "📞 Банк", "Клади трубку!"),
+        (safe_icons[6], "⚖️ Права", "#КиберПраво")
     ]
     
     cols = st.columns(3)
-    for i, (img, name, desc) in enumerate(sticker_list):
+    for i, (img, name, desc) in enumerate(stickers):
         with cols[i % 3]:
             st.markdown(f"""
             <div class="sticker-card">
@@ -277,8 +271,9 @@ elif selected == "Стикер-пак":
             </div>
             """, unsafe_allow_html=True)
     
-    st.info("📌 Кликни правой кнопкой мыши на стикер → Сохрани картинку")
-    st.markdown("**Хэштеги:** #СетьБезОбид #КиберПраво")
+    st.info("📌 Нажми правой кнопкой мыши на стикер → Сохранить картинку")
+    st.markdown("### 🏷️ Хэштеги:")
+    st.code("#СетьБезОбид #КиберПраво #БезопасностьДетям", language="")
 
 # ========== ПОДВАЛ ==========
 st.markdown("---")
